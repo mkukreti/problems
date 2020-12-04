@@ -1,0 +1,126 @@
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.Arrays;
+
+public class Solution{
+
+     public static void main(String []args)
+     {
+        List<Reservation> r = generateTestReservations();
+        print(r);
+        print(minTables(r));
+     }
+     
+     static List<Reservation> generateTestReservations()
+     {
+         List<Reservation> res = new ArrayList<Reservation>();
+         
+         for(int i = 0; i < 5; i++)
+         {
+             int randStartHrs, randStartMins, randEndHrs, randEndMins;
+         
+             do
+             {
+                 randStartHrs = ThreadLocalRandom.current().nextInt(0, 23 + 1);
+             }
+             while(randStartHrs == 23);
+             
+             randStartMins = ThreadLocalRandom.current().nextInt(0, 59 + 1);
+             
+             do
+             {
+                 randEndHrs = ThreadLocalRandom.current().nextInt(0, 23 + 1);
+             }
+             while((randEndHrs <= randStartHrs) || (randEndHrs == 23));
+             
+             randEndMins = ThreadLocalRandom.current().nextInt(0, 59 + 1);
+             
+             Time start = new Time(randStartHrs, randStartMins);
+             Time end = new Time(randEndHrs, randEndMins);
+             Reservation r = new Reservation(start, end);
+             
+             res.add(r);
+         }
+         
+         return res;
+     }
+     
+     
+     static void print(Object o)
+     {
+         System.out.println(o);
+     }
+     
+     static void print(List<Reservation> r)
+     {
+         for(Reservation res : r)
+         {
+             System.out.println("(" + res.start.hrs + ":" + res.start.min + ")" +
+             " , " + "(" + res.end.hrs + ":" + res.end.min + ")"
+             );
+         }
+     }
+     
+     static class Time 
+     {
+         int hrs;
+         int min;
+         
+         public Time(int hrs, int min)
+         {
+             this.hrs = hrs;
+             this.min = min;
+         }
+     }
+     
+     static class Reservation 
+     {
+         Time start;
+         Time end;
+         
+         public Reservation(Time start, Time end)
+         {
+             this.start = start;
+             this.end = end;
+         }
+         
+         public int getStartMinutes()
+         {
+             return start.hrs * 60 + start.min;
+         }
+         
+         public int getEndMinutes()
+         {
+             return end.hrs * 60 + end.min;
+         }
+     }
+     
+     public static int minTables(List<Reservation> r)
+     {
+         int[] occ = new int[24 * 60];
+         Arrays.fill(occ, 0);
+         
+         for(Reservation res : r)
+         {
+            int startIndex = res.getStartMinutes();
+            int endIndex = res.getEndMinutes();
+            
+            for(int i=startIndex; i <= endIndex; i++)
+            {
+                occ[i] += 1;
+            }
+         }
+         
+         int tables = Integer.MIN_VALUE;
+         
+         for(int j = 0; j < occ.length; j++)
+         {
+             if(occ[j] > tables)
+             {
+                 tables = occ[j];
+             }
+         }
+         
+         return tables;
+     }
+}
